@@ -11,7 +11,7 @@ const App = () => {
 
   const handleClick = (wt, bt) => {
     if(wt >= 5 && wt <= 60) setWorkTime(wt)
-    if(bt >= 5 && bt <= 25) setBreakTime(bt)
+    if(bt >= 1 && bt <= 25) setBreakTime(bt)
   }
   
   return (
@@ -23,7 +23,8 @@ const App = () => {
           onClick={(wt, bt) => handleClick(wt, bt)}  
         />
         <CountdownTimer 
-          workTime={workTime}
+          workTime={workTime*60}
+          breakTime={breakTime*60}
         />
         <img src={logo} className="App-logo" alt="logo" />
       </header>
