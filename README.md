@@ -66,3 +66,12 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `npm run build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+## Run as a PWA on your phone
+
+1. `npm install` after git clone
+2. `npm run build` for production build
+3. `npx serve -s build` to serve it with a static server
+4. View `http://yourIPAddress:5000` on your phone's browser
+5. Click `⋮` -> `Add to Home screen`
+6. Place on home screen. Done.
