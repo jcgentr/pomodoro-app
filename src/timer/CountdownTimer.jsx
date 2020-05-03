@@ -3,7 +3,6 @@ import marblesSound from './marbles.wav'
 
 const CountdownTimer = ({workTime, breakTime}) => {
     const audioElement = new Audio(marblesSound)
-    // audioElement.play()
 
     // workTime and breakTime are passed in as seconds
     const [countdownInterval, setCountdownInterval] = useState(null)
@@ -21,6 +20,7 @@ const CountdownTimer = ({workTime, breakTime}) => {
             audioElement.play()
             handleStop()
         }
+        // eslint-disable-next-line
     }, [timeRemaining])
 
     const tick = () => {
