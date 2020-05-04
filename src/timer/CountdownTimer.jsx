@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import NoSleep from 'nosleep.js'
 import marblesSound from './marbles.wav'
 
 const CountdownTimer = ({workTime, breakTime}) => {
+    const noSleep = new NoSleep()
     const audioElement = new Audio(marblesSound)
 
     // workTime and breakTime are passed in as seconds
@@ -30,12 +32,14 @@ const CountdownTimer = ({workTime, breakTime}) => {
     const handleStart = () => {
         if(timeRemaining > 0) {
             setCountdownInterval(setInterval(tick, 1000))
-            setHasBeenStarted(true) 
+            setHasBeenStarted(true)
+            noSleep.enable()
         }
     }
 
     const handleStop = () => {
-        setCountdownInterval(clearInterval(countdownInterval))      
+        setCountdownInterval(clearInterval(countdownInterval))
+        noSleep.disable()  
     }
 
     const handleReset = () => {
