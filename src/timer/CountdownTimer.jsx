@@ -9,6 +9,7 @@ const CountdownTimer = ({workTime, breakTime}) => {
     const [timeElapsed, setTimeElapsed] = useState(0)
     const [hasBeenStarted, setHasBeenStarted] = useState(false)
     const [isWorking, setIsWorking] = useState(false)
+    const [isStopped, setIsStopped] = useState(true)
     const [startDateTime, setStartDateTime] = useState(null)
     const [delay, setDelay] = useState(null);
 
@@ -39,14 +40,16 @@ const CountdownTimer = ({workTime, breakTime}) => {
     }, [timeRemaining])
 
     const handleStart = () => {
-        if(timeRemaining > 0) {
+        if(timeRemaining > 0 && isStopped) {
             setStartDateTime(new Date())
             setDelay(1000)
             setHasBeenStarted(true)
+            setIsStopped(false)
         }
     }
 
     const handleStop = () => {
+        setIsStopped(true)
         // timeElapsed snapshot
         if (isWorking) setTimeElapsed(workTime - timeRemaining)
         else setTimeElapsed(breakTime - timeRemaining)
