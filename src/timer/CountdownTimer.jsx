@@ -1,16 +1,29 @@
-import React, { useState, useEffect } from 'react'
-import NoSleep from 'nosleep.js'
+import React, { useState, useEffect, useRef } from 'react'
 import marblesSound from './marbles.wav'
 
 const CountdownTimer = ({workTime, breakTime}) => {
-    const noSleep = new NoSleep()
     const audioElement = new Audio(marblesSound)
 
     // workTime and breakTime are passed in as seconds
-    const [countdownInterval, setCountdownInterval] = useState(null)
     const [timeRemaining, setTimeRemaining] = useState(null)
+    const [timeElapsed, setTimeElapsed] = useState(0)
     const [hasBeenStarted, setHasBeenStarted] = useState(false)
     const [isWorking, setIsWorking] = useState(false)
+    const [startDateTime, setStartDateTime] = useState(null)
+    const [delay, setDelay] = useState(null);
+
+    useInterval(() => {
+        const now = new Date()
+        const currentTimeElapsed = Math.floor((now - startDateTime)/1000) + timeElapsed
+    
+        if (isWorking) {
+            const time = workTime - currentTimeElapsed
+            setTimeRemaining(time <= 0 ? 0 : time)
+        } else {
+            const time = breakTime - currentTimeElapsed
+            setTimeRemaining(time <= 0 ? 0 : time)
+        }
+    }, delay);
 
     useEffect(() => {
         if(!hasBeenStarted && isWorking) setTimeRemaining(workTime)
@@ -25,25 +38,25 @@ const CountdownTimer = ({workTime, breakTime}) => {
         // eslint-disable-next-line
     }, [timeRemaining])
 
-    const tick = () => {
-        setTimeRemaining(prevTime => prevTime === 0 ? 0 : prevTime - 1)
-    }
-
     const handleStart = () => {
         if(timeRemaining > 0) {
-            setCountdownInterval(setInterval(tick, 1000))
+            setStartDateTime(new Date())
+            setDelay(1000)
             setHasBeenStarted(true)
-            noSleep.enable()
         }
     }
 
     const handleStop = () => {
-        setCountdownInterval(clearInterval(countdownInterval))
-        noSleep.disable()  
+        // timeElapsed snapshot
+        if (isWorking) setTimeElapsed(workTime - timeRemaining)
+        else setTimeElapsed(breakTime - timeRemaining)
+        // stop interval
+        setDelay(null)
     }
 
     const handleReset = () => {
         handleStop()
+        setTimeElapsed(0)
         setHasBeenStarted(false)
     }
 
@@ -73,3 +86,24 @@ const CountdownTimer = ({workTime, breakTime}) => {
 }
 
 export default CountdownTimer
+
+// from Dan Abramov @ https://overreacted.io/making-setinterval-declarative-with-react-hooks/
+function useInterval(callback, delay) {
+    const savedCallback = useRef();
+  
+    // Remember the latest function.
+    useEffect(() => {
+      savedCallback.current = callback;
+    }, [callback]);
+  
+    // Set up the interval.
+    useEffect(() => {
+      function tick() {
+        savedCallback.current();
+      }
+      if (delay !== null) {
+        let id = setInterval(tick, delay);
+        return () => clearInterval(id);
+      }
+    }, [delay]);
+  }
