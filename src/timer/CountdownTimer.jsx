@@ -11,7 +11,7 @@ const CountdownTimer = ({workTime, breakTime}) => {
     const [isWorking, setIsWorking] = useState(false)
     const [isStopped, setIsStopped] = useState(true)
     const [startDateTime, setStartDateTime] = useState(null)
-    const [delay, setDelay] = useState(null);
+    const [delay, setDelay] = useState(null)
 
     useInterval(() => {
         const now = new Date()
@@ -24,7 +24,7 @@ const CountdownTimer = ({workTime, breakTime}) => {
             const time = breakTime - currentTimeElapsed
             setTimeRemaining(time <= 0 ? 0 : time)
         }
-    }, delay);
+    }, delay)
 
     useEffect(() => {
         if(!hasBeenStarted && isWorking) setTimeRemaining(workTime)
@@ -92,21 +92,21 @@ export default CountdownTimer
 
 // from Dan Abramov @ https://overreacted.io/making-setinterval-declarative-with-react-hooks/
 function useInterval(callback, delay) {
-    const savedCallback = useRef();
+    const savedCallback = useRef()
   
     // Remember the latest function.
     useEffect(() => {
-      savedCallback.current = callback;
-    }, [callback]);
+      savedCallback.current = callback
+    }, [callback])
   
     // Set up the interval.
     useEffect(() => {
       function tick() {
-        savedCallback.current();
+        savedCallback.current()
       }
       if (delay !== null) {
-        let id = setInterval(tick, delay);
-        return () => clearInterval(id);
+        let id = setInterval(tick, delay)
+        return () => clearInterval(id)
       }
-    }, [delay]);
+    }, [delay])
   }

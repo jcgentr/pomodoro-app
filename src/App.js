@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import logo from './logo.svg'
 import './App.css'
 
-import CountdownTimer from './timer/CountdownTimer'
+import CountdownTimerSocketIO from './timer/CountdownTimerSocketIO'
 import TimerOptions from './timer/TimerOptions'
 
 const App = () => {
@@ -22,7 +22,7 @@ const App = () => {
           breakTime={breakTime} 
           onClick={(wt, bt) => handleClick(wt, bt)}  
         />
-        <CountdownTimer 
+        <CountdownTimerSocketIO 
           workTime={workTime*60}
           breakTime={breakTime*60}
         />
