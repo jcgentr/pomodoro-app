@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import marblesSound from './marbles.wav'
 
 const CountdownTimer = ({workTime, breakTime}) => {
-    const audioElement = new Audio(marblesSound)
-
     // workTime and breakTime are passed in as seconds
     const [timeRemaining, setTimeRemaining] = useState(null)
     const [timeElapsed, setTimeElapsed] = useState(0)
@@ -27,13 +25,23 @@ const CountdownTimer = ({workTime, breakTime}) => {
     }, delay)
 
     useEffect(() => {
+        return () => {
+            //cleanup fxn when unmounting this component
+        }
+    }, [])
+
+    useEffect(() => {
+       handleReset()
+       // eslint-disable-next-line
+    }, [workTime, breakTime])
+
+    useEffect(() => {
         if(!hasBeenStarted && isWorking) setTimeRemaining(workTime)
         else if(!hasBeenStarted && !isWorking) setTimeRemaining(breakTime)
     }, [workTime, hasBeenStarted, isWorking, breakTime])
 
     useEffect(() => {
         if(timeRemaining === 0) {
-            audioElement.play()
             handleStop()
         }
         // eslint-disable-next-line
@@ -84,6 +92,10 @@ const CountdownTimer = ({workTime, breakTime}) => {
                 <span className="slider round"></span>
             </label>
             Work
+            {(timeRemaining === 0) ?
+                (<audio autoPlay loop> <source src={marblesSound} type="audio/wav" /> </audio>) :
+                (<audio muted autoPlay loop> <source src={marblesSound} type="audio/wav" /> </audio>)
+            }
         </div>
     )
 }
@@ -92,7 +104,7 @@ export default CountdownTimer
 
 // from Dan Abramov @ https://overreacted.io/making-setinterval-declarative-with-react-hooks/
 function useInterval(callback, delay) {
-    const savedCallback = useRef()
+    const savedCallback = useRef(null)
   
     // Remember the latest function.
     useEffect(() => {

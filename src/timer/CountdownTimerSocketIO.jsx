@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import socketIOClient from "socket.io-client"
 import moment from "moment"
 import marblesSound from './marbles.wav'
 
-const ENDPOINT = "http://127.0.0.1:5000"
-
-const CountdownTimer = ({workTime, breakTime}) => {
+const CountdownTimer = ({workTime, breakTime, socket}) => {
     // workTime and breakTime are passed in as seconds
     const [timeRemaining, setTimeRemaining] = useState(null)
     const [hasBeenStarted, setHasBeenStarted] = useState(false)
     const [isWorking, setIsWorking] = useState(false)
     const [isStopped, setIsStopped] = useState(true)
-    const [dateTime, setDateTime] = useState(moment().format('MMMM Do YYYY, h:mm:ss a'))
+    const [dateTime, setDateTime] = useState(null)
+    const [prevDateTime, setPrevDateTime] = useState(null)
 
     useEffect(() => {
-        const socket = socketIOClient(ENDPOINT)
-        socket.on("FromAPI", data => {
-          setDateTime(moment(data).format('MMMM Do YYYY, h:mm:ss a'))
+        socket.on("FromAPI", newDate => {
+          setDateTime(new Date(newDate))
         })
         // eslint-disable-next-line
       }, [])
@@ -27,12 +24,20 @@ const CountdownTimer = ({workTime, breakTime}) => {
     }, [workTime, hasBeenStarted, isWorking, breakTime])
 
     useEffect(() => {
-        if(hasBeenStarted && !isStopped) setTimeRemaining(prev => prev - 1)
+        if(hasBeenStarted && !isStopped) {
+            const diff = Math.abs(dateTime - prevDateTime) / 1000
+            setTimeRemaining(prev => {
+                if ((prev - diff) <= 0) return 0
+                else return prev - diff
+            })
+        }
+        setPrevDateTime(new Date(dateTime))
         // eslint-disable-next-line
     }, [dateTime])
 
     useEffect(() => {
         if(timeRemaining === 0) {
+            socket.emit('pomodoroCompleted', isWorking ? "work" : "break")
             handleStop()
         }
         // eslint-disable-next-line
@@ -40,6 +45,7 @@ const CountdownTimer = ({workTime, breakTime}) => {
 
     const handleStart = () => {
         if(timeRemaining > 0 && isStopped) {
+            setPrevDateTime(dateTime)
             setHasBeenStarted(true)
             setIsStopped(false)
         }
@@ -65,7 +71,7 @@ const CountdownTimer = ({workTime, breakTime}) => {
 
     return (
         <div>
-            <h4>{dateTime}</h4>
+            <h4>{moment(dateTime).format('MMMM Do YYYY, h:mm a')}</h4>
             <button onClick={() => handleStart()}>Start</button>
             <button onClick={() => handleStop()}>Stop</button>
             <button onClick={() => handleReset()}>Reset</button>
@@ -76,9 +82,9 @@ const CountdownTimer = ({workTime, breakTime}) => {
                 <span className="slider round"></span>
             </label>
             Work
-            {(timeRemaining === 0) ?
-                (<audio id="audio" autoPlay loop> <source src={marblesSound} type="audio/wav" /> </audio>) :
-                (<audio id="audio" muted autoPlay loop> <source src={marblesSound} type="audio/wav" /> </audio>)
+            {(timeRemaining <= 0) ?
+                (<audio autoPlay loop> <source src={marblesSound} type="audio/wav" /> </audio>) :
+                (<audio muted autoPlay loop> <source src={marblesSound} type="audio/wav" /> </audio>)
             }
         </div>
     )
